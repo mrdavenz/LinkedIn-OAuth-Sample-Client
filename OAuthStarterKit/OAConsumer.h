@@ -37,7 +37,7 @@
 @property(copy, readwrite) NSString *secret;
 @property(copy, readwrite) NSString *realm;
 
-- (id)initWithKey:(const NSString *)aKey secret:(const NSString *)aSecret realm:(const NSString *)aRealm;
+- (id)initWithKey:(NSString *)aKey secret:(NSString *)aSecret realm:(NSString *)aRealm;
 
 - (BOOL)isEqualToConsumer:(OAConsumer *)aConsumer;
 
