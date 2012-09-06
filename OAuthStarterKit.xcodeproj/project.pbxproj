@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		659410A21353A25700826837 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 659410A11353A25700826837 /* UIKit.framework */; };
-		659410A41353A25700826837 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 659410A31353A25700826837 /* Foundation.framework */; };
-		659410A61353A25700826837 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 659410A51353A25700826837 /* CoreGraphics.framework */; };
 		659410AC1353A25700826837 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 659410AA1353A25700826837 /* InfoPlist.strings */; };
 		659410AF1353A25700826837 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 659410AE1353A25700826837 /* main.m */; };
 		659410B21353A25700826837 /* OAuthStarterKitAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 659410B11353A25700826837 /* OAuthStarterKitAppDelegate.m */; };
@@ -47,9 +44,6 @@
 
 /* Begin PBXFileReference section */
 		6594109D1353A25700826837 /* OAuthStarterKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OAuthStarterKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		659410A11353A25700826837 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		659410A31353A25700826837 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		659410A51353A25700826837 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		659410A91353A25700826837 /* OAuthStarterKit-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OAuthStarterKit-Info.plist"; sourceTree = "<group>"; };
 		659410AB1353A25700826837 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		659410AD1353A25700826837 /* OAuthStarterKit-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OAuthStarterKit-Prefix.pch"; sourceTree = "<group>"; };
@@ -117,9 +111,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				659410A21353A25700826837 /* UIKit.framework in Frameworks */,
-				659410A41353A25700826837 /* Foundation.framework in Frameworks */,
-				659410A61353A25700826837 /* CoreGraphics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,7 +121,6 @@
 			isa = PBXGroup;
 			children = (
 				659410A71353A25700826837 /* OAuthStarterKit */,
-				659410A01353A25700826837 /* Frameworks */,
 				6594109E1353A25700826837 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -141,16 +131,6 @@
 				6594109D1353A25700826837 /* OAuthStarterKit.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		659410A01353A25700826837 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				659410A11353A25700826837 /* UIKit.framework */,
-				659410A31353A25700826837 /* Foundation.framework */,
-				659410A51353A25700826837 /* CoreGraphics.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		659410A71353A25700826837 /* OAuthStarterKit */ = {
