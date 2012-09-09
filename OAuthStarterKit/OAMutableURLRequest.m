@@ -129,8 +129,8 @@ signatureProvider:(id<OASignatureProviding, NSObject>)aProvider
 	[chunks addObject:[NSString stringWithFormat:@"oauth_nonce=\"%@\"", nonce]];
 	[chunks	addObject:@"oauth_version=\"1.0\""];
 	
-	NSString *oauthHeader = [NSString stringWithFormat:@"OAuth %@", [chunks componentsJoinedByString:@", "]];
-	[chunks release];
+    NSString *oauthHeader = [NSString stringWithFormat:@"OAuth %@", [chunks componentsJoinedByString:@", "]];
+    [chunks release];
 
     [self setValue:oauthHeader forHTTPHeaderField:@"Authorization"];
 }

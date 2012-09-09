@@ -40,7 +40,8 @@
                                              callback:linkedInCallbackURL
                                     signatureProvider:nil] autorelease];
     
-    [request setHTTPMethod:@"POST"];   
+    [request setHTTPMethod:@"POST"];
+  
     OADataFetcher *fetcher = [[[OADataFetcher alloc] init] autorelease];
     [fetcher fetchDataWithRequest:request
                          delegate:self
@@ -212,12 +213,12 @@
 //
 - (void)initLinkedInApi
 {
-    apikey = @"API_KEY";
-    secretkey = @"API_SECRET";   
+    apikey = kLinkedInApiKey;
+    secretkey = kLinkedInApiSecret;
 
-    self.consumer = [[OAConsumer alloc] initWithKey:apikey
-                                        secret:secretkey
-                                         realm:@"http://api.linkedin.com/"];
+    self.consumer = [[OAConsumer alloc] initWithKey: apikey
+                                             secret: secretkey
+                                              realm: @"http://api.linkedin.com/"];
 
     requestTokenURLString = @"https://api.linkedin.com/uas/oauth/requestToken";
     accessTokenURLString = @"https://api.linkedin.com/uas/oauth/accessToken";

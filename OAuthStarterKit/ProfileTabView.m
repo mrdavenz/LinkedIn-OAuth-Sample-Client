@@ -40,7 +40,6 @@
     // They can be done asynchronously
     // Get the profile, then the network updates
     [self profileApiCall];
-	
 }
 
 - (void)profileApiCall
@@ -81,7 +80,6 @@
     
     // The next thing we want to do is call the network updates
     [self networkApiCall];
-
 }
 
 - (void)profileApiCallResult:(OAServiceTicket *)ticket didFail:(NSData *)error 
@@ -171,7 +169,7 @@
     NSString *updateString = [update JSONString];
     
     [request setHTTPBodyWithString:updateString];
-	[request setHTTPMethod:@"POST"];
+    [request setHTTPMethod:@"POST"];
     
     OADataFetcher *fetcher = [[OADataFetcher alloc] init];
     [fetcher fetchDataWithRequest:request

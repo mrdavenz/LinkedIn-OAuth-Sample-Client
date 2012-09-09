@@ -12,6 +12,10 @@
 #import "OAMutableURLRequest.h"
 #import "OADataFetcher.h"
 #import "OATokenManager.h"
+#import <Foundation/NSNotificationQueue.h>
+
+#define API_KEY_LENGTH 12
+#define SECRET_KEY_LENGTH 16
 
 
 @interface OAuthLoginView : UIViewController <UIWebViewDelegate>
