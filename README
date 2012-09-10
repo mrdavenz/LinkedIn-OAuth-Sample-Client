@@ -1,3 +1,23 @@
+This fork of iPhone OAuth Starter Kit, mimics the animations and oAuth process from FBConnect, which includes an identical animated popup Webview, called LinkedInLoginDialog. It also allows for caching the LinkedIn AccessToken, so the user doesn't need to relogin everytime.
+
+So to use the Linkedin API, you simply need a LinkedIn object and call - (void) requestWithGraphPath:andParams:andHttpMethod:andDelegate
+
+So for example, if the LinkedIn object was stored in the AppDelegate:
+
+  ALMAppDelegate *appDelegate = (ALMAppDelegate *)[UIApplication sharedApplication].delegate;
+  
+  NSArray *permissionsNeeded = [[NSArray alloc] initWithObjects: @"r_fullprofile", @"r_contactinfo", @"r_emailaddress", nil];
+  
+  NSString *graph = @"people/~:(id,first-name,last-name,industry,email-address,phone-numbers)";
+  
+  [appDelegate.linkedin requestWithGraphPath: graph
+                                   andParams: permissionsNeeded
+                               andHttpMethod: @"POST"
+                                 andDelegate: nil];
+                                 
+~Dave van Dugteren
+www.alivemobile.com.au
+
 ----------------------------------------------------------
 iPhone OAuth Starter Kit
 
