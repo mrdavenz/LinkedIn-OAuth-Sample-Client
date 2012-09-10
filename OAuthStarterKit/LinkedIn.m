@@ -103,25 +103,59 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
   if ([defaults objectForKey: @"kAccessToken"])
     [defaults removeObjectForKey: @"kAccessToken"];
   
-  [defaults setObject: accessTokenParamsDict forKey: @"kAccessToken"];
+  NSMutableDictionary *consumerDict = [[NSMutableDictionary alloc] init];
+  if (self.loginDialog.consumer.key) [consumerDict setObject: self.loginDialog.consumer.key
+                                                  forKey: @"key"];
+  
+  if (self.loginDialog.consumer.secret) [consumerDict setObject: self.loginDialog.consumer.secret
+                                                  forKey: @"secret"];
+  
+  if (self.loginDialog.consumer.realm) [consumerDict setObject: self.loginDialog.consumer.realm
+                                                  forKey: @"realm"];
+  
+  [defaults setObject: accessTokenParamsDict
+               forKey: @"kAccessToken"];
+  
+  [defaults setObject: consumerDict
+               forKey: @"kConsumer"];
 }
 
 - (void) apiCall{
-  OAMutableURLRequest *request =
-  [[OAMutableURLRequest alloc] initWithURL: requestURL
-                                  consumer: self.loginDialog.consumer
-                                     token: self.loginDialog.accessToken
-                                  callback: nil
-                         signatureProvider: nil];
-  
-  [request setValue:@"json" forHTTPHeaderField:@"x-li-format"];
-  
-  OADataFetcher *fetcher = [[OADataFetcher alloc] init];
-  
-  [fetcher fetchDataWithRequest: request
-                       delegate: self.sessionDelegate
-              didFinishSelector: @selector(profileApiCallResult:didFinish:)
-                didFailSelector: @selector(profileApiCallResult:didFail:)];
+  //If cached AccessToken, no need to use the loginDialog recieved settings, get it locally.
+  if (self.consumer != nil) {
+    OAMutableURLRequest *request =
+    [[OAMutableURLRequest alloc] initWithURL: requestURL
+                                    consumer: self.consumer
+                                       token: self.accessToken
+                                    callback: nil
+                           signatureProvider: nil];
+    
+    [request setValue:@"json" forHTTPHeaderField:@"x-li-format"];
+    
+    OADataFetcher *fetcher = [[OADataFetcher alloc] init];
+    
+    [fetcher fetchDataWithRequest: request
+                         delegate: self.sessionDelegate
+                didFinishSelector: @selector(profileApiCallResult:didFinish:)
+                  didFailSelector: @selector(profileApiCallResult:didFail:)];
+  }
+  else{
+    OAMutableURLRequest *request =
+    [[OAMutableURLRequest alloc] initWithURL: requestURL
+                                    consumer: self.loginDialog.consumer
+                                       token: self.loginDialog.accessToken
+                                    callback: nil
+                           signatureProvider: nil];
+    
+    [request setValue:@"json" forHTTPHeaderField:@"x-li-format"];
+    
+    OADataFetcher *fetcher = [[OADataFetcher alloc] init];
+    
+    [fetcher fetchDataWithRequest: request
+                         delegate: self.sessionDelegate
+                didFinishSelector: @selector(profileApiCallResult:didFinish:)
+                  didFailSelector: @selector(profileApiCallResult:didFail:)];
+  }
 }
 
 - (id)initWithDelegate:(id<LinkedInSessionDelegate>)delegate{
@@ -145,6 +179,7 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
   NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
   
   NSMutableDictionary *dictForToken = [userDefaults objectForKey: @"kAccessToken"];
+  NSMutableDictionary *dictForConsumer = [userDefaults objectForKey: @"kConsumer"];
   
   if (self.accessToken == nil) {
     if (dictForToken) {
@@ -159,6 +194,10 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
                                            attributes: [dictForToken objectForKey:@"attributes"]
                                               created: [dictForToken objectForKey:@"date"]
                                             renewable: isRenewable.boolValue];
+
+      self.consumer = [[OAConsumer alloc] initWithKey: [dictForConsumer objectForKey: @"key"]
+                                               secret: [dictForConsumer objectForKey: @"secret"]
+                                                realm: [dictForConsumer objectForKey: @"realm"]];
     }
   }
   

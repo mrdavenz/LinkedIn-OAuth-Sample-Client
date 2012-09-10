@@ -57,8 +57,6 @@
   NSArray*  _permissions;
   NSDate*   _expirationDate;
   
-  OAConsumer *consumer;
-  
   NSMutableSet* _requests;
   
   NSURL *requestURL;
@@ -66,6 +64,7 @@
 
 @property(nonatomic, assign) id<LinkedInSessionDelegate> sessionDelegate;
 
+@property (nonatomic, strong) OAConsumer *consumer;
 @property (nonatomic, strong) OAToken *accessToken;
 @property (nonatomic, copy) NSDate* expirationDate;
 //@property (nonatomic, retain) OAuthLoginView *oAuthLoginView;
