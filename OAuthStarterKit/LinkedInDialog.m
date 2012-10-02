@@ -36,7 +36,7 @@ static CGFloat kBorderBlack[4] = {0.3, 0.3, 0.3, 1};
 static CGFloat kTransitionDuration = 0.3;
 
 static CGFloat kPadding = 0;
-static CGFloat kBorderWidth = 10;
+static CGFloat kBorderWidth = 20;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -226,7 +226,7 @@ static BOOL LIIsDeviceIPad() {
       NSString* value = [params objectForKey:key];
       NSString* escaped_value = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
                                                                                     NULL, /* allocator */
-                                                                                    (CFStringRef)value,
+                                                                                    (__bridge CFStringRef)value,
                                                                                     NULL, /* charactersToLeaveUnescaped */
                                                                                     (CFStringRef)@"!*'();:@&=+$,/?%#[]",
                                                                                     kCFStringEncodingUTF8);
@@ -396,106 +396,6 @@ static BOOL LIIsDeviceIPad() {
   _spinner.hidden = YES;
 }
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
- navigationType:(UIWebViewNavigationType)navigationType {
-  
-  NSLog(@"Step 3::webView");
-  
-  NSURL *url = request.URL;
-	NSString *urlString = url.absoluteString;
-  
-  addressBar.text = urlString;
-  [activityIndicator startAnimating];
-  
-  BOOL requestForCallbackURL = ([urlString rangeOfString:linkedInCallbackURL].location != NSNotFound);
-  if ( requestForCallbackURL )
-  {
-    BOOL userAllowedAccess = ([urlString rangeOfString:@"user_refused"].location == NSNotFound);
-    if ( userAllowedAccess )
-    {
-      [self.requestToken setVerifierWithUrl:url];
-      [self accessTokenFromProvider];
-    }
-    else
-    {
-      // User refused to allow our app access
-      // Notify parent and close this view
-      [[NSNotificationCenter defaultCenter]
-       postNotificationName:@"loginViewDidFinish"
-       object:self
-       userInfo:nil];
-    }
-  }
-  else
-  {
-    // Case (a) or (b), so ignore it
-  }
-	return YES;
-  
-//  NSURL* url = request.URL;
-//
-//  if ([url.scheme isEqualToString:@"fbconnect"])
-//  {
-//    //TODO: Handle any errors.
-//    if ([[url.resourceSpecifier substringToIndex:8] isEqualToString:@"//cancel"])
-//    {
-//      [self dialogDidCancel:url];
-//    }
-//    else
-//    {
-//      [self dialogDidSucceed:url];
-//    }
-//    
-//    return NO;
-//  }
-//  else if ([_loadingURL isEqual:url])
-//  {
-//    return YES;
-//  }
-//  else if (navigationType == UIWebViewNavigationTypeLinkClicked)
-//  {
-//    if ([_delegate respondsToSelector:@selector(dialog:shouldOpenURLInExternalBrowser:)])
-//    {
-//      if (![_delegate dialog:self shouldOpenURLInExternalBrowser:url])
-//      {
-//        return NO;
-//      }
-//    }
-//    [[UIApplication sharedApplication] openURL:request.URL];
-//    return NO;
-//  }
-//  else
-//  {
-//    return YES;
-//  }
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-  if (_isViewInvisible) {
-    // if our cache asks us to hide the view, then we do, but
-    // in case of a stale cache, we will display the view in a moment
-    // note that showing the view now would cause a visible white
-    // flash in the common case where the cache is up to date
-    [self performSelector:@selector(showWebView) withObject:nil afterDelay:.05];
-  } else {
-    [self hideSpinner];
-  }
-  [self updateWebOrientation];
-}
-
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-  // 102 == WebKitErrorFrameLoadInterruptedByPolicyChange
-  // -999 == "Operation could not be completed", note -999 occurs when the user clicks away before
-  // the page has completely loaded, if we find cases where we want this to result in dialog failure
-  // (usually this just means quick-user), then we should add something more robust here to account
-  // for differences in application needs
-  if (!(([error.domain isEqualToString:@"NSURLErrorDomain"] && error.code == -999) ||
-        ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102))) {
-    [self dismissWithError:error animated:YES];
-  }
-}
-
-
 - (void)deviceOrientationDidChange:(void*)object {
   UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (!_showingKeyboard && [self shouldRotateToOrientation:orientation]) {
@@ -506,38 +406,6 @@ static BOOL LIIsDeviceIPad() {
     [UIView setAnimationDuration:duration];
     [self sizeToFitOrientation:YES];
     [UIView commitAnimations];
-  }
-}
-
-- (void)keyboardWillShow:(NSNotification*)notification {
-  
-  _showingKeyboard = YES;
-  
-  if (LIIsDeviceIPad()) {
-    // On the iPad the screen is large enough that we don't need to
-    // resize the dialog to accomodate the keyboard popping up
-    return;
-  }
-  
-  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-  if (UIInterfaceOrientationIsLandscape(orientation)) {
-    _webView.frame = CGRectInset(_webView.frame,
-                                 -(kPadding + kBorderWidth),
-                                 -(kPadding + kBorderWidth));
-  }
-}
-
-- (void)keyboardWillHide:(NSNotification*)notification {
-  _showingKeyboard = NO;
-  
-  if (LIIsDeviceIPad()) {
-    return;
-  }
-  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-  if (UIInterfaceOrientationIsLandscape(orientation)) {
-    _webView.frame = CGRectInset(_webView.frame,
-                                 kPadding + kBorderWidth,
-                                 kPadding + kBorderWidth);
   }
 }
 
@@ -563,7 +431,7 @@ static BOOL LIIsDeviceIPad() {
 }
 
 - (id)initWithURL: (NSString *) serverURL
-           params: (NSMutableDictionary *) params
+           params: (NSString *) params
   isViewInvisible: (BOOL)isViewInvisible
          delegate: (id <LinkedInDialogDelegate>) delegate {
   
@@ -577,7 +445,8 @@ static BOOL LIIsDeviceIPad() {
 }
 
 - (void)load {
-  [self loadURL:_serverURL get:_params];
+  [self loadURL: _serverURL
+            get: _params];
 }
 
 - (void)loadURL:(NSString*)url get:(NSDictionary*)getParams
@@ -591,18 +460,23 @@ static BOOL LIIsDeviceIPad() {
 
 - (void)show {
   //  [self load];
-  [self sizeToFitOrientation:NO];
+  [self sizeToFitOrientation: YES];
   
-  CGFloat innerWidth = self.frame.size.width - (kBorderWidth+1)*2;
+  //CGFloat innerWidth = self.frame.size.width - (kBorderWidth+1)*2;
+  CGFloat innerWidth = self.frame.size.width - (kBorderWidth * 2);
   [_closeButton sizeToFit];
   
   _closeButton.frame = CGRectMake(2, 2, 29, 29);
   
+  [self addSubview: _closeButton];
+  
   _webView.frame = CGRectMake(
-                              kBorderWidth+1,
-                              kBorderWidth+1,
+                              kBorderWidth,
+                              kBorderWidth,
                               innerWidth,
-                              self.frame.size.height - (1 + kBorderWidth*2));
+                              self.frame.size.height - (kBorderWidth * 2));
+  
+  [_webView setContentStretch: _webView.frame];
   
   
   if ([apikey length] < API_KEY_LENGTH || [secretkey length] < SECRET_KEY_LENGTH)
@@ -748,7 +622,22 @@ static BOOL LIIsDeviceIPad() {
   NSLog(@"Firing off URL: %@", userLoginURL.absoluteString);
   
   NSURLRequest *request = [NSMutableURLRequest requestWithURL: userLoginURL];
-  [_webView loadRequest:request];
+  
+  NSError *error;
+//  
+//  [_webView setAutoresizesSubviews: YES];
+//  [_webView setClearsContextBeforeDrawing: YES];
+//  [_webView setOpaque: YES];
+//  [_webView setScalesPageToFit: YES];
+//  [_webView setContentMode: UIViewContentModeScaleToFill];
+  
+  NSString *string = [NSString stringWithContentsOfURL: userLoginURL
+                                              encoding: NSStringEncodingConversionAllowLossy
+                                                 error: &error];
+  
+  [_webView loadHTMLString: string
+                   baseURL:userLoginURL];
+  //[_webView loadRequest:request];
 }
 
 
@@ -887,5 +776,171 @@ static BOOL LIIsDeviceIPad() {
   userLoginURL    = [NSURL URLWithString:userLoginURLString];
 }
 
+#pragma mark -
+#pragma mark UIWebViewDelegate
+
+- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
+ navigationType:(UIWebViewNavigationType)navigationType {
+  
+  NSLog(@"Step 3::webView");
+  
+  NSURL *url = request.URL;
+	NSString *urlString = url.absoluteString;
+  
+  addressBar.text = urlString;
+  [activityIndicator startAnimating];
+  
+  BOOL requestForCallbackURL = ([urlString rangeOfString:linkedInCallbackURL].location != NSNotFound);
+  if ( requestForCallbackURL )
+  {
+    NSLog(@"url contains callback: hdlinked");
+    
+    BOOL userAllowedAccess = ([urlString rangeOfString:@"user_refused"].location == NSNotFound);
+    if ( userAllowedAccess )
+    {
+      [self.requestToken setVerifierWithUrl:url];
+      [self accessTokenFromProvider];
+    }
+    else
+    {
+      // User refused to allow our app access
+      // Notify parent and close this view
+      [[NSNotificationCenter defaultCenter]
+       postNotificationName:@"loginViewDidFinish"
+       object:self
+       userInfo:nil];
+    }
+    //return NO;
+
+  }
+  else
+  {
+    // Case (a) or (b), so ignore it
+    
+     }
+	return YES;
+}
+
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+  
+  NSLog(@"webViewDidFinishLoad");
+  
+  if (_isViewInvisible) {
+    // if our cache asks us to hide the view, then we do, but
+    // in case of a stale cache, we will display the view in a moment
+    // note that showing the view now would cause a visible white
+    // flash in the common case where the cache is up to date
+    [self performSelector:@selector(showWebView) withObject:nil afterDelay:.05];
+  } else {
+    [self hideSpinner];
+  }
+  [self updateWebOrientation];
+  
+  [self zoomToFit];
+}
+
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+  // 102 == WebKitErrorFrameLoadInterruptedByPolicyChange
+  // -999 == "Operation could not be completed", note -999 occurs when the user clicks away before
+  // the page has completely loaded, if we find cases where we want this to result in dialog failure
+  // (usually this just means quick-user), then we should add something more robust here to account
+  // for differences in application needs
+  NSLog(@"didFailLoadWithError: %@", error.debugDescription);
+  if (!(([error.domain isEqualToString:@"NSURLErrorDomain"] && error.code == -999) ||
+        ([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102))) {
+    [self dismissWithError:error animated:YES];
+  }
+}
+
+#pragma mark -
+#pragma mark UIKeyboardNotifications
+
+- (void)keyboardWillShow:(NSNotification*)notification {
+  
+  _showingKeyboard = YES;
+  
+  if (LIIsDeviceIPad()) {
+    // On the iPad the screen is large enough that we don't need to
+    // resize the dialog to accomodate the keyboard popping up
+    return;
+  }
+  
+  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  if (UIInterfaceOrientationIsLandscape(orientation)) {
+    _webView.frame = CGRectInset(_webView.frame,
+                                 -(kPadding + kBorderWidth),
+                                 -(kPadding + kBorderWidth));
+  }
+  
+  [_webView.scrollView scrollRectToVisible: CGRectMake(0, _webView.frame.size.height, 280, 1) animated:YES];
+}
+
+- (void)keyboardWillHide:(NSNotification*)notification {
+  _showingKeyboard = NO;
+  
+  if (LIIsDeviceIPad()){
+    return;
+  }
+  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  if (UIInterfaceOrientationIsLandscape(orientation)) {
+    _webView.frame = CGRectInset(_webView.frame,
+                                 kPadding + kBorderWidth,
+                                 kPadding + kBorderWidth);
+  }
+}
+
+
+-(void)zoomToFit
+{
+  //[self runJS];
+
+  [self resize];
+  
+  //<meta name="viewport" content="width=device-width; minimum-scale=1.0; maximum-scale=1.0; user-scalable=no">
+}
+
+- (void)resize{
+  CGSize contentSize = _webView.scrollView.contentSize;
+  CGSize viewSize = self.bounds.size;
+  
+  float rw = 280 / contentSize.width;
+  
+  _webView.scrollView.minimumZoomScale = rw;
+  //_webView.scrollView.maximumZoomScale = rw;
+  _webView.scrollView.zoomScale = rw;
+  
+  [_webView setScalesPageToFit: YES];
+  
+  _webView.scrollView.delegate = self;
+}
+
+- (void) runJS{
+  NSLog(@"load js");
+  
+  NSString *path = [[NSBundle mainBundle] pathForResource:@"resizeweb" ofType:@"js"];
+  NSError *error = nil;
+  NSString *jsCode = [NSString stringWithContentsOfFile: path
+                                               encoding: NSUTF8StringEncoding
+                                                  error: &error];
+  if (error) {
+    NSLog(@"error: %@", error.debugDescription);
+  }
+  [_webView stringByEvaluatingJavaScriptFromString:jsCode];
+}
+
+#pragma mark -
+#pragma mark UIScrollViewDelegate
+
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView{
+  NSLog(@"scrollViewDidZoom");
+}
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+  return nil;
+}
+
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view{
+  [self resize];
+}
 
 @end

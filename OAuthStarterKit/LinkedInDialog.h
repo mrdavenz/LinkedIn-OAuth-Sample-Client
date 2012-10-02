@@ -1,6 +1,6 @@
 //
 //  LinkedInDialog.h
-//  PBProto
+//  Peoplebank App
 //
 //  Created by Dave van Dugteren on 9/09/12.
 //  Copyright (c) 2012 Alive. All rights reserved.
@@ -18,7 +18,7 @@
 
 @protocol LinkedInDialogDelegate;
 
-@interface LinkedInDialog : UIView<UIWebViewDelegate>{
+@interface LinkedInDialog : UIView<UIWebViewDelegate, UIScrollViewDelegate>{
   
   __unsafe_unretained id<LinkedInDialogDelegate> _delegate;
   //  NSString *_params; //Permissions //TODO: change var name
@@ -34,7 +34,6 @@
   
   UIView* _modalBackgroundView;
   
-  //
   IBOutlet UIActivityIndicatorView *activityIndicator;
   IBOutlet UITextField *addressBar;
   
@@ -50,7 +49,7 @@
   NSURL *userLoginURL;
   NSString *linkedInCallbackURL;
 }
-//
+
 @property(nonatomic, retain) OAToken *requestToken;
 @property(nonatomic, retain) OAToken *accessToken;
 @property(nonatomic, retain) NSDictionary *profile;

@@ -1,6 +1,6 @@
 //
 //  LinkedInLoginDialog.m
-//  PBProto
+//  Peoplebank App
 //
 //  Created by Dave van Dugteren on 9/09/12.
 //  Copyright (c) 2012 Alive. All rights reserved.

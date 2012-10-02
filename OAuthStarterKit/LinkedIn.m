@@ -1,6 +1,6 @@
 //
 //  ALMLinkedIn.m
-//  PBProto
+//  Peoplebank App
 //
 //  Created by Dave van Dugteren on 6/09/12.
 //  Copyright (c) 2012 Alive. All rights reserved.
@@ -26,17 +26,122 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
 @synthesize permissions = _permissions,
           expirationDate = _expirationDate;
 
+- (void) updateStatus : (NSString *) status
+         withGraphPath: (NSString *) graphPath
+             andParams: (NSArray *) params
+         andHttpMethod: (NSString *) httpMethod
+           andDelegate: (id <LinkedInSessionDelegate>) delegate{
+  
+  NSString *stringGraphPath = @"v1/";
+  NSString *fullURL = [kProviderBaseURL stringByAppendingString: [stringGraphPath stringByAppendingString: graphPath]];
+  
+  requestURL = [NSURL URLWithString: fullURL];
+  
+  //self.sessionDelegate = delegate;
+  
+  if ([self isSessionValid]) {
+    if (self.consumer != nil) {
+      OAMutableURLRequest *request =
+      [[OAMutableURLRequest alloc] initWithURL: requestURL
+                                      consumer: self.consumer
+                                         token: self.accessToken
+                                      callback: nil
+                             signatureProvider: nil];
+      
+      NSMutableDictionary *permsDict = [NSMutableDictionary dictionary];
+      
+      [permsDict setValue: @"anyone" forKey: @"code"];
+      
+      NSMutableDictionary *shareJSONDict = [NSMutableDictionary dictionary];
+      
+      [shareJSONDict setValue: permsDict forKey: @"visibility"];
+      
+      [shareJSONDict setValue: status forKey: @"comment"];
+      
+      [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+      
+      NSString *updateString = [shareJSONDict JSONString];
+      
+      [request setHTTPBodyWithString:updateString];
+      [request setHTTPMethod:@"POST"];
+      
+      OADataFetcher *fetcher = [[OADataFetcher alloc] init];
+      
+      [fetcher fetchDataWithRequest: request
+                           delegate: self.sessionDelegate
+                  didFinishSelector: @selector(postUpdateApiCallResult:didFinish:)
+                    didFailSelector: @selector(postUpdateApiCallResult:didFail:)];
+    }
+    else{
+      OAMutableURLRequest *request =
+      [[OAMutableURLRequest alloc] initWithURL: requestURL
+                                      consumer: self.loginDialog.consumer
+                                         token: self.loginDialog.accessToken
+                                      callback: nil
+                             signatureProvider: nil];
+      
+      NSMutableDictionary *permsDict = [NSMutableDictionary dictionary];
+      
+      [permsDict setValue: @"anyone" forKey: @"code"];
+      
+      NSMutableDictionary *shareJSONDict = [NSMutableDictionary dictionary];
+      [shareJSONDict setValue: permsDict forKey: @"visibility"];
+      [shareJSONDict setValue: status forKey: @"comment"];
+      
+      [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+      
+      NSString *updateString = [shareJSONDict JSONString];
+      
+      [request setHTTPBodyWithString:updateString];
+      [request setHTTPMethod:@"POST"];
+      
+      OADataFetcher *fetcher = [[OADataFetcher alloc] init];
+      
+      [fetcher fetchDataWithRequest: request
+                           delegate: self.sessionDelegate
+                  didFinishSelector: @selector(postUpdateApiCallResult:didFinish:)
+                    didFailSelector: @selector(postUpdateApiCallResult:didFail:)];
+    }
+  }
+  else{
+    NSString *paramsString = [[NSMutableString alloc] init];
+    
+    for (NSString *param in params)
+      paramsString = [paramsString stringByAppendingFormat: @" %@", param];
+    
+    NSRange range = NSMakeRange(0, 1);
+    
+    [paramsString stringByReplacingCharactersInRange: range
+                                          withString: @""]; //Remove leading space.
+    
+    NSLog(@"Requesting Linkedin Permissions: %@", paramsString);
+    
+    [self authorize: paramsString];
+  }
+}
+
+- (void)postUpdateApiCallResult:(OAServiceTicket *)ticket didFinish:(NSData *)data
+{
+  // The next thing we want to do is call the network updates
+  NSLog(@"postUpdateApiCallResult");
+}
+
+- (void)postUpdateApiCallResult:(OAServiceTicket *)ticket didFail:(NSData *)error
+{
+  NSLog(@"%@",[error description]);
+}
+
 - (void)requestWithGraphPath: (NSString *) graphPath
                    andParams: (NSArray *) params
                andHttpMethod: (NSString *) httpMethod
-                 andDelegate: (id <NSObject>) delegate{
+                 andDelegate: (id <LinkedInSessionDelegate>) delegate{
   
   NSString *stringGraphPath = @"v1/";
   NSString *fullURL = [kProviderBaseURL stringByAppendingString: [stringGraphPath stringByAppendingString: graphPath]];
 
   requestURL = [NSURL URLWithString: fullURL];
 
-  if ([self isSessionValid]) {
+  if ([self isSessionValid]){
     [self apiCall];
   }
   else{
@@ -69,7 +174,6 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
                                              object: self.loginDialog];
   
   [self.loginDialog show];
-  //[self presentModalViewController:self. oAuthLoginView animated:YES];
 }
 
 -(void) loginViewDidFinish:(NSNotification*)notification
@@ -104,15 +208,16 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
     [defaults removeObjectForKey: @"kAccessToken"];
   
   NSMutableDictionary *consumerDict = [[NSMutableDictionary alloc] init];
+  
   if (self.loginDialog.consumer.key) [consumerDict setObject: self.loginDialog.consumer.key
-                                                  forKey: @"key"];
+                                                      forKey: @"key"];
   
   if (self.loginDialog.consumer.secret) [consumerDict setObject: self.loginDialog.consumer.secret
-                                                  forKey: @"secret"];
-  
+                                                         forKey: @"secret"];
+
   if (self.loginDialog.consumer.realm) [consumerDict setObject: self.loginDialog.consumer.realm
-                                                  forKey: @"realm"];
-  
+                                                        forKey: @"realm"];
+    
   [defaults setObject: accessTokenParamsDict
                forKey: @"kAccessToken"];
   
@@ -214,6 +319,34 @@ static NSString* kAPISecretKey = kLinkedInApiSecret;
 
 - (void)liDialogNotLogin:(BOOL)cancelled{
   NSLog(@"liDialogNotLogin");
+}
+
+#pragma mark -
+#pragma mark LinkedInDialogDelegate
+
+- (void)dialogDidComplete:(LinkedInDialog *)dialog{
+  NSLog(@"LinkedInDialogDelegate::dialogDidComplete");
+}
+
+- (void)dialogCompleteWithUrl:(NSURL *)url{
+  NSLog(@"LinkedInDialogDelegate::dialogCompleteWithUrl");
+}
+
+- (void)dialogDidNotCompleteWithUrl:(NSURL *)url{
+  NSLog(@"LinkedInDialogDelegate::dialogDidNotCompleteWithUrl");
+}
+
+- (void)dialogDidNotComplete:(LinkedInDialog *)dialog{
+  NSLog(@"LinkedInDialogDelegate::dialogDidNotComplete");
+}
+
+- (void)dialog:(LinkedInDialog*)dialog didFailWithError:(NSError *)error{
+  NSLog(@"LinkedInDialogDelegate::didFailWithError");
+}
+
+- (BOOL)dialog:(LinkedInDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL *)url{
+  NSLog(@"LinkedInDialogDelegate::shouldOpenURLInExternalBrowser");
+  return NO;
 }
 
 @end

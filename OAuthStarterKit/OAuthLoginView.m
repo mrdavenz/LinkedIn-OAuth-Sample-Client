@@ -91,7 +91,9 @@
         userLoginURLString, self.requestToken.key];
     
     userLoginURL = [NSURL URLWithString:userLoginURLWithToken];
+  
     NSURLRequest *request = [NSMutableURLRequest requestWithURL: userLoginURL];
+  
     [webView loadRequest:request];     
 }
 

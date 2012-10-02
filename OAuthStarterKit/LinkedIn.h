@@ -1,6 +1,6 @@
 //
 //  ALMLinkedIn.h
-//  PBProto
+//  Peoplebank App
 //
 //  Created by Dave van Dugteren on 6/09/12.
 //  www.alivemobile.com.au
@@ -18,7 +18,7 @@
 /*
  * Called when the user successfully logged in.
  */
-@optional
+@required
 - (void) liDidLogin;
 
 /*
@@ -53,7 +53,7 @@
 
 @end
 
-@interface LinkedIn : NSObject<LinkedInLoginDialogDelegate>{
+@interface LinkedIn : NSObject<LinkedInLoginDialogDelegate, LinkedInDialogDelegate>{
   NSArray*  _permissions;
   NSDate*   _expirationDate;
   
@@ -83,5 +83,10 @@
                andHttpMethod: (NSString *) httpMethod
                  andDelegate: (id <NSObject>) delegate;
 
+- (void) updateStatus : (NSString *) status
+         withGraphPath: (NSString *) graphPath
+             andParams: (NSArray *) params
+         andHttpMethod: (NSString *) httpMethod
+           andDelegate: (id <NSObject>) delegate;
 
 @end
